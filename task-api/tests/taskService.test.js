@@ -126,6 +126,10 @@ describe('completeTask', () => {
     expect(new Date(c.completedAt).toString()).not.toBe('Invalid Date');
   });
 
+  test('preserves priority', () => {
+    const t = taskService.create({ title: 'a', priority: 'high' });
+    expect(taskService.completeTask(t.id).priority).toBe('high');
+  });
 
   test('returns null for unknown id', () => {
     expect(taskService.completeTask('nope')).toBeNull();

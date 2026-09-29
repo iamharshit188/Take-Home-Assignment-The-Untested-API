@@ -99,12 +99,13 @@ describe('DELETE /tasks/:id', () => {
 });
 
 describe('PATCH /tasks/:id/complete', () => {
-  test('completes a task', async () => {
+  test('completes a task and keeps priority', async () => {
     const { body: t } = await make({ title: 'a', priority: 'high' });
     const res = await request(app).patch(`/tasks/${t.id}/complete`);
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('done');
     expect(res.body.completedAt).not.toBeNull();
+    expect(res.body.priority).toBe('high');
   });
 
   test('404 for unknown id', async () => {
