@@ -44,6 +44,11 @@ describe('GET /tasks', () => {
     expect(res.body.map((t) => t.title)).toEqual(['b']);
   });
 
+  test('partial status matches nothing', async () => {
+    await make({ title: 'a', status: 'todo' });
+    const res = await request(app).get('/tasks?status=to');
+    expect(res.body).toEqual([]);
+  });
 
   test('paginates starting at page 1', async () => {
     for (let i = 1; i <= 5; i++) await make({ title: `t${i}` });

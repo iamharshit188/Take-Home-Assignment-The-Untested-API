@@ -52,6 +52,10 @@ describe('getByStatus', () => {
     expect(taskService.getByStatus('done').map((t) => t.title)).toEqual(['c']);
   });
 
+  test('does not match on substrings', () => {
+    expect(taskService.getByStatus('do')).toEqual([]);
+    expect(taskService.getByStatus('progress')).toEqual([]);
+  });
 });
 
 describe('getPaginated', () => {
