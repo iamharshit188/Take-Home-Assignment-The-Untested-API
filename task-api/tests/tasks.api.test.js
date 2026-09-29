@@ -45,7 +45,19 @@ describe('GET /tasks', () => {
   });
 
 
+  test('paginates starting at page 1', async () => {
+    for (let i = 1; i <= 5; i++) await make({ title: `t${i}` });
+    const p1 = await request(app).get('/tasks?page=1&limit=2');
+    const p3 = await request(app).get('/tasks?page=3&limit=2');
+    expect(p1.body.map((t) => t.title)).toEqual(['t1', 't2']);
+    expect(p3.body.map((t) => t.title)).toEqual(['t5']);
+  });
 
+  test('defaults to page 1, limit 10 on invalid values', async () => {
+    for (let i = 1; i <= 12; i++) await make({ title: `t${i}` });
+    const res = await request(app).get('/tasks?page=abc&limit=xyz');
+    expect(res.body).toHaveLength(10);
+  });
 });
 
 describe('PUT /tasks/:id', () => {

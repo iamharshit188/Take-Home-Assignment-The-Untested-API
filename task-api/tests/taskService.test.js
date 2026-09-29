@@ -54,6 +54,25 @@ describe('getByStatus', () => {
 
 });
 
+describe('getPaginated', () => {
+  beforeEach(() => {
+    for (let i = 1; i <= 5; i++) taskService.create({ title: `t${i}` });
+  });
+
+  test('page 1 returns the first items', () => {
+    expect(taskService.getPaginated(1, 2).map((t) => t.title)).toEqual(['t1', 't2']);
+  });
+
+  test('later pages and partial last page', () => {
+    expect(taskService.getPaginated(2, 2).map((t) => t.title)).toEqual(['t3', 't4']);
+    expect(taskService.getPaginated(3, 2).map((t) => t.title)).toEqual(['t5']);
+  });
+
+  test('page beyond the end is empty', () => {
+    expect(taskService.getPaginated(4, 2)).toEqual([]);
+  });
+});
+
 describe('getStats', () => {
   test('counts by status and overdue', () => {
     const past = new Date(Date.now() - 86400000).toISOString();
