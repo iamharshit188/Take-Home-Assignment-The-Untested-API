@@ -1,4 +1,4 @@
-const { validateCreateTask, validateUpdateTask } = require('../src/utils/validators');
+const { validateCreateTask, validateUpdateTask, validateAssignTask } = require('../src/utils/validators');
 
 describe('validateCreateTask', () => {
   test('accepts minimal and full bodies', () => {
@@ -26,5 +26,18 @@ describe('validateUpdateTask', () => {
     expect(validateUpdateTask({ status: 'x' })).toMatch(/status/);
     expect(validateUpdateTask({ priority: 'x' })).toMatch(/priority/);
     expect(validateUpdateTask({ dueDate: 'x' })).toMatch(/dueDate/);
+  });
+});
+
+describe('validateAssignTask', () => {
+  test('accepts non-empty string', () => {
+    expect(validateAssignTask({ assignee: 'Alice' })).toBeNull();
+  });
+
+  test('rejects missing body, empty, blank and non-string', () => {
+    expect(validateAssignTask(undefined)).toMatch(/assignee/);
+    expect(validateAssignTask({ assignee: '' })).toMatch(/assignee/);
+    expect(validateAssignTask({ assignee: ' ' })).toMatch(/assignee/);
+    expect(validateAssignTask({ assignee: 1 })).toMatch(/assignee/);
   });
 });

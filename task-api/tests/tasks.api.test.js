@@ -123,3 +123,46 @@ describe('GET /tasks/stats', () => {
     expect(res.body).toEqual({ todo: 1, in_progress: 0, done: 1, overdue: 1 });
   });
 });
+
+describe('PATCH /tasks/:id/assign', () => {
+  test('assigns and returns the updated task', async () => {
+    const { body: t } = await make();
+    const res = await request(app).patch(`/tasks/${t.id}/assign`).send({ assignee: 'Alice' });
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ id: t.id, assignee: 'Alice' });
+    const list = await request(app).get('/tasks');
+    expect(list.body[0].assignee).toBe('Alice');
+  });
+
+  test('trims whitespace', async () => {
+    const { body: t } = await make();
+    const res = await request(app).patch(`/tasks/${t.id}/assign`).send({ assignee: '  Bob  ' });
+    expect(res.body.assignee).toBe('Bob');
+  });
+
+  test('allows reassignment', async () => {
+    const { body: t } = await make();
+    await request(app).patch(`/tasks/${t.id}/assign`).send({ assignee: 'Alice' });
+    const res = await request(app).patch(`/tasks/${t.id}/assign`).send({ assignee: 'Bob' });
+    expect(res.status).toBe(200);
+    expect(res.body.assignee).toBe('Bob');
+  });
+
+  test.each([
+    ['missing', {}],
+    ['empty', { assignee: '' }],
+    ['whitespace', { assignee: '   ' }],
+    ['non-string', { assignee: 42 }],
+    ['null', { assignee: null }],
+  ])('400 on %s assignee', async (_, body) => {
+    const { body: t } = await make();
+    const res = await request(app).patch(`/tasks/${t.id}/assign`).send(body);
+    expect(res.status).toBe(400);
+    expect((await request(app).get('/tasks')).body[0].assignee).toBeNull();
+  });
+
+  test('404 for unknown id', async () => {
+    const res = await request(app).patch('/tasks/nope/assign').send({ assignee: 'Alice' });
+    expect(res.status).toBe(404);
+  });
+});

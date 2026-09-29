@@ -11,6 +11,7 @@ describe('create', () => {
       status: 'todo',
       priority: 'medium',
       dueDate: null,
+      assignee: null,
       completedAt: null,
     });
     expect(t.id).toEqual(expect.any(String));
@@ -133,5 +134,17 @@ describe('completeTask', () => {
 
   test('returns null for unknown id', () => {
     expect(taskService.completeTask('nope')).toBeNull();
+  });
+});
+
+describe('assign', () => {
+  test('stores assignee', () => {
+    const t = taskService.create({ title: 'a' });
+    expect(taskService.assign(t.id, 'Alice').assignee).toBe('Alice');
+    expect(taskService.findById(t.id).assignee).toBe('Alice');
+  });
+
+  test('returns null for unknown id', () => {
+    expect(taskService.assign('nope', 'Alice')).toBeNull();
   });
 });
